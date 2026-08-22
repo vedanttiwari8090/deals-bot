@@ -29,23 +29,38 @@ HISTORY_FILE = "posted_deals.txt"
 MAX_DEAL_AGE_HOURS = 3
 
 ALLOWED_DOMAINS = [
-    "flipkart", "fkrt.it", "fkrt.co", "shopsy",
-    "myntra", "myntr.it", "ajio", "tatacliq", "meesho",
-    "bit.ly", "cutt.ly", "fpkrt.cc", "tinyurl.com", "swiggy", "fktr.in", "zomato", "cuttli.in", "jio"
+    "flipkart", "fkrt", "shopsy", "myntra", "myntr", "ajio", "tatacliq", 
+    "meesho", "swiggy", "zomato", "jio", "croma", "myntr.it", "fkrt.cc",
+    "ern.li", "extp.in", "spndeals", "bit.ly", "cutt.ly", "cuttli.in", "tinyurl", 
+    "oia.bio", "openinapp", "halfoffer", "wishlink", "fktr.in", "telegram"
 ]
 # ==============================================================================
 
 def resolve_short_url(url):
-    """Unshortens competitor redirect links using a full browser simulation to bypass blocks."""
+    """Advanced unshortener that reads hidden JavaScript redirects (EarnKaro, ExtraPe)."""
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
-        # Use GET instead of HEAD to bypass Flipkart/EarnKaro anti-bot protections
-        with requests.get(url, headers=headers, allow_redirects=True, timeout=8, stream=True) as res:
-            return res.url
+        res = requests.get(url, headers=headers, allow_redirects=True, timeout=8)
+        final_url = res.url
+        
+        # 1. Search the raw HTML for hidden JavaScript redirects
+        js_match = re.search(r'window\.location\.(?:replace|href)\s*=\s*["\']([^"\']+)["\']', res.text)
+        if js_match:
+            final_url = js_match.group(1).replace('\\/', '/')
+            
+        # 2. Search for HTML Meta Refresh redirects
+        meta_match = re.search(r'content=["\']\d+;url=([^"\']+)["\']', res.text, re.IGNORECASE)
+        if meta_match:
+            final_url = meta_match.group(1).replace('\\/', '/')
+
+        # If it found a secret link inside the JS, do one more jump to unshorten it
+        if final_url != res.url and final_url.startswith("http"):
+            res2 = requests.get(final_url, headers=headers, allow_redirects=True, timeout=5)
+            return res2.url
+
+        return final_url
     except Exception:
         return url
 
