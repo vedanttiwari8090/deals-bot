@@ -27,13 +27,13 @@ INR_ID = "ayu679055639"
 INR_KEY = "none"
 HISTORY_FILE = "posted_deals.txt"
 
-# 🔒 OFFLINE WHITELIST:
 ALLOWED_DOMAINS = [
     "flipkart", "fkrt.it", "fkrt.co", "shopsy",
     "myntra", "myntr.it", "ajio", "tatacliq", "meesho",
     "bit.ly", "cutt.ly", "tinyurl.com", "swiggy", "fktr.in", "zomato", "cuttli.in", "jio"
 ]
 # ==============================================================================
+
 def resolve_short_url(url):
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
@@ -43,6 +43,7 @@ def resolve_short_url(url):
         return url
 
 def get_inrdeals_link(original_url):
+    """Generates the raw tracking URL without external shorteners that block affiliates."""
     real_url = resolve_short_url(original_url)
     encoded_url = urllib.parse.quote(real_url, safe='')
 
@@ -55,16 +56,7 @@ def get_inrdeals_link(original_url):
         except Exception:
             pass
 
-    long_tracking_url = f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
-    try:
-        tiny_api = f"https://tinyurl.com/api-create.php?url={urllib.parse.quote(long_tracking_url)}"
-        tiny_res = requests.get(tiny_api, timeout=5)
-        if tiny_res.status_code == 200:
-            return tiny_res.text
-    except Exception:
-        pass
-
-    return long_tracking_url
+    return f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
 
 def clean_branding(text):
     if not text:
@@ -81,6 +73,7 @@ def clean_branding(text):
     for phrase in filler_phrases:
         text = re.sub(re.escape(phrase), '', text, flags=re.IGNORECASE)
 
+    # Convert to safe text for Telegram HTML parsing
     text = html.escape(text.strip())
     text += f"\n\n🔥 <b>Join {DESTINATION_CHANNEL} for verified loot deals!</b>"
     return text
@@ -140,34 +133,49 @@ def process_channel(source_channel, posted_ids):
             posted_ids.append(unique_id)
             continue
 
-        has_media = msg.find(class_=re.compile('tgme_widget_message_(photo|video)_wrap'))
+        # --- IMAGE BYPASS SCRAPER ---
+        image_url = None
+        photo_wrap = msg.find(class_=re.compile('tgme_widget_message_photo_wrap'))
+        if photo_wrap and photo_wrap.has_attr('style'):
+            style_str = photo_wrap['style']
+            img_match = re.search(r"background-image:url\(['\"]?(.*?)['\"]?\)", style_str)
+            if img_match:
+                raw_img = img_match.group(1).strip().strip("'\"")
+                if raw_img.startswith("//"): image_url = "https:" + raw_img
+                elif raw_img.startswith("http"): image_url = raw_img
 
+        # --- TEXT & LINK CLEANUP ---
         final_text = raw_text
+        
+        # 1. Delete all the ugly raw competitor links from the post entirely
+        for original_link in all_links:
+            final_text = final_text.replace(original_link, "")
+            
+        # 2. Clean the branding
+        clean_text = clean_branding(final_text)
+        
+        # 3. Create elegant HTML clickable buttons for your tracking links
         converted_list = []
-
-        for original_link, resolved_link in valid_deal_links:
+        for _, resolved_link in valid_deal_links:
             affiliate_link = get_inrdeals_link(resolved_link)
-            if original_link in final_text:
-                final_text = final_text.replace(original_link, affiliate_link)
-            else:
-                converted_list.append(affiliate_link)
+            # This hides the long URL behind clean text
+            converted_list.append(f"🔗 <a href='{affiliate_link}'><b>Click Here To Buy</b></a>")
 
         if converted_list:
-            final_text += "\n\n🛒 Buy Links:\n" + "\n".join(converted_list)
+            clean_text += "\n\n🛒 <b>Buy Links:</b>\n" + "\n".join(converted_list)
 
-        clean_text = clean_branding(final_text)
         bot_api_url = f"https://api.telegram.org/bot{BOT_TOKEN}"
         posted_successfully = False
 
-        if has_media and len(clean_text) <= 1024:
+        # --- POSTING WITH IMAGE FALLBACK ---
+        if image_url and len(clean_text) <= 1024:
             payload = {
                 "chat_id": DESTINATION_CHANNEL,
-                "from_chat_id": f"@{source_channel}",
-                "message_id": int(msg_id_num),
+                "photo": image_url,
                 "caption": clean_text,
                 "parse_mode": "HTML"
             }
-            res = requests.post(f"{bot_api_url}/copyMessage", json=payload)
+            res = requests.post(f"{bot_api_url}/sendPhoto", json=payload, timeout=10)
             if res.status_code == 200:
                 posted_successfully = True
 
@@ -178,7 +186,7 @@ def process_channel(source_channel, posted_ids):
                 "parse_mode": "HTML",
                 "disable_web_page_preview": False
             }
-            res = requests.post(f"{bot_api_url}/sendMessage", json=payload)
+            res = requests.post(f"{bot_api_url}/sendMessage", json=payload, timeout=10)
             if res.status_code == 200:
                 posted_successfully = True
 
@@ -191,7 +199,7 @@ def process_channel(source_channel, posted_ids):
         time.sleep(3)
 
 def run():
-    print("[✓] GitHub Action Cycle Started!")
+    print("[✓] GitHub Action Cycle Started (Image Bypass Active)!")
     if not os.path.exists(HISTORY_FILE):
         open(HISTORY_FILE, 'w').close()
 
@@ -206,3 +214,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
