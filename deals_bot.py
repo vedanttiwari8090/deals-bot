@@ -62,36 +62,26 @@ def resolve_short_url(url):
         return url
 
 def clean_product_fingerprint(url, raw_text):
-    """Creates a unique ID to prevent cross-channel duplicates."""
     try:
         parsed = urllib.parse.urlparse(url)
         query = urllib.parse.parse_qs(parsed.query)
         for key in ['pid', 'id', 'productId', 'item', 'p']:
-            if key in query:
-                return f"PROD_{query[key][0]}"
-    except Exception:
-        pass
-    
+            if key in query: return f"PROD_{query[key][0]}"
+    except: pass
     clean_title = re.sub(r'[^a-zA-Z0-9]', '', raw_text[:45]).lower()
     return f"TITLE_{clean_title}" if len(clean_title) > 8 else None
 
 def get_inrdeals_link_direct(resolved_url):
-    """Generates direct INRDeals affiliate link."""
     encoded_url = urllib.parse.quote(resolved_url, safe='')
-
     if INR_KEY and INR_KEY.lower() != "none":
         api_url = f"https://inr.deals/api/request/affiliatelink?id={INR_ID}&key={INR_KEY}&url={encoded_url}"
         try:
             res = requests.get(api_url, timeout=6).json()
-            if res.get("status") is True and "url" in res:
-                return res.get("url")
-        except Exception:
-            pass
-
+            if res.get("status") is True and "url" in res: return res.get("url")
+        except: pass
     return f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
 
 def clean_branding(text):
-    """Strips watermarks and replaces competitor tags without escaping HTML."""
     if not text: return ""
     text = re.sub(r'(?i)extra\s*pe', '', text)
     text = re.sub(r'(?i)earnkaro', '', text)
@@ -101,9 +91,7 @@ def clean_branding(text):
     text = re.sub(r'@[a-zA-Z0-9_]+', DESTINATION_CHANNEL, text)
 
     filler_phrases = ["Join our backup channel", "Join fast", "Loot fast", "Share with friends", "Join our discussion group", "Channel link:"]
-    for phrase in filler_phrases:
-        text = re.sub(re.escape(phrase), '', text, flags=re.IGNORECASE)
-
+    for phrase in filler_phrases: text = re.sub(re.escape(phrase), '', text, flags=re.IGNORECASE)
     return text.strip()
 
 def is_deal_fresh(msg_elem):
@@ -117,27 +105,21 @@ def is_deal_fresh(msg_elem):
 
 def process_channel(source_channel, posted_history):
     if source_channel.startswith("+"): return
-
     print(f"\n[*] Scanning: {source_channel}...")
-    url = f"https://t.me/s/{source_channel}"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(f"https://t.me/s/{source_channel}", headers=headers, timeout=10)
         soup = BeautifulSoup(res.text, 'html.parser')
-        messages = soup.find_all('div', class_='tgme_widget_message')
+        messages = soup.find_all('div', class_='tgme_widget_message')[-35:]
     except Exception as e:
         print(f"[!] Error loading {source_channel}: {e}")
         return
 
-    recent_messages = messages[-35:]
-
-    for msg in recent_messages:
+    for msg in messages:
         raw_post_id = msg.get('data-post')
         if not raw_post_id: continue
-
-        msg_id_num = raw_post_id.split('/')[-1]
-        unique_id = f"{source_channel}_{msg_id_num}"
+        unique_id = f"{source_channel}_{raw_post_id.split('/')[-1]}"
 
         if unique_id in posted_history: continue
 
@@ -147,42 +129,77 @@ def process_channel(source_channel, posted_history):
             continue
 
         text_elem = msg.find('div', class_='tgme_widget_message_text')
-        raw_text = text_elem.get_text(separator='\n') if text_elem else ""
-
-        embedded_links = [a.get('href') for a in msg.find_all('a') if a.get('href')]
-        regex_links = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', raw_text)
-        all_links = list(set(embedded_links + regex_links))
-
-        valid_deal_links = []
+        
+        # Format HTML breaks to newlines before extracting text
+        if text_elem:
+            for br in text_elem.find_all("br"): br.replace_with("\n")
+        
+        raw_text = text_elem.get_text() if text_elem else ""
         msg_text_lower = raw_text.lower()
 
-        for link in all_links:
-            if "t.me" in link or "telegram.org" in link: continue
+        # 1. EXTRACT REAL LINKS & VISUAL TEXT FROM HTML
+        inline_links = []
+        if text_elem:
+            for a_tag in text_elem.find_all('a'):
+                href = a_tag.get('href')
+                if href and not href.startswith(('mailto:', 'tel:')):
+                    inline_links.append({"url": href, "text": a_tag.get_text()})
 
-            resolved = resolve_short_url(link)
+        # 2. RESOLVE & VERIFY LINKS
+        valid_deal_links = [] # Will hold tuples of (Old Display Text, New HTML Button)
+        primary_link = None
+        
+        for link_obj in inline_links:
+            href = link_obj['url']
+            display_text = link_obj['text']
+            
+            if "t.me" in href or "telegram.org" in href: continue
+                
+            resolved = resolve_short_url(href)
             res_lower = resolved.lower()
-            orig_lower = link.lower()
+            
+            # Delete Amazon links entirely
+            if "amazon" in res_lower or "amzn" in res_lower:
+                valid_deal_links.append((display_text, ""))
+                continue
+                
+            is_valid = any(d in res_lower for d in ALLOWED_DOMAINS) or any(s in msg_text_lower for s in ["flipkart", "shopsy", "myntra", "ajio", "tatacliq", "croma", "meesho"])
+            
+            if is_valid:
+                if not primary_link: primary_link = resolved
+                aff_link = get_inrdeals_link_direct(resolved)
+                new_html = f"<a href='{aff_link}'><b>👉 Click Here To Buy</b></a>"
+                valid_deal_links.append((display_text, new_html))
+            else:
+                # Erase unknown junk links
+                valid_deal_links.append((display_text, ""))
 
-            if "amazon" in res_lower or "amzn" in res_lower or "amazon" in orig_lower: continue
-
-            is_valid_url = any(d in res_lower for d in ALLOWED_DOMAINS) or any(d in orig_lower for d in ALLOWED_DOMAINS)
-            is_store_mentioned = any(s in msg_text_lower for s in ["flipkart", "shopsy", "myntra", "ajio", "tatacliq", "croma", "meesho"])
-
-            if is_valid_url or is_store_mentioned:
-                valid_deal_links.append((link, resolved))
-
-        if not valid_deal_links:
+        # 3. VERIFY DEDUPLICATION
+        if not primary_link:
             posted_history.add(unique_id)
             with open(HISTORY_FILE, 'a') as f: f.write(f"{unique_id}\n")
             continue
 
-        primary_link = valid_deal_links[0][1]
         fingerprint = clean_product_fingerprint(primary_link, raw_text)
         if fingerprint and fingerprint in posted_history:
             posted_history.add(unique_id)
             with open(HISTORY_FILE, 'a') as f: f.write(f"{unique_id}\n")
             continue
 
+        # 4. PERFECT INLINE TEXT REPLACEMENT
+        final_text = html.escape(raw_text)
+        
+        # Replace the exact visible text with our new button on the exact same line!
+        for old_display_text, new_html_button in valid_deal_links:
+            escaped_display = html.escape(old_display_text)
+            if escaped_display:
+                # replace(..., 1) ensures we only replace the specific link, not normal words
+                final_text = final_text.replace(escaped_display, new_html_button, 1)
+
+        clean_text = clean_branding(final_text)
+        clean_text += f"\n\n🔥 <b>Join {DESTINATION_CHANNEL} for verified loot deals!</b>"
+
+        # 5. FETCH IMAGE
         image_url = None
         photo_wrap = msg.find(class_=re.compile('tgme_widget_message_photo_wrap'))
         if photo_wrap and photo_wrap.has_attr('style'):
@@ -191,39 +208,7 @@ def process_channel(source_channel, posted_history):
                 raw_img = img_match.group(1).strip().strip("'\"")
                 image_url = "https:" + raw_img if raw_img.startswith("//") else raw_img
 
-        # ==================================================================
-        # TEXT REBUILD & INLINE LINK INJECTION (Fix for the empty text issue)
-        # ==================================================================
-        final_text = html.escape(raw_text)
-        
-        # 1. Erase invalid/junk links completely
-        for original_link in all_links:
-            if not any(original_link == valid_orig for valid_orig, _ in valid_deal_links):
-                final_text = final_text.replace(html.escape(original_link), "")
-                
-        # 2. Clean out competitor names
-        clean_text = clean_branding(final_text)
-
-        # 3. Inject new affiliate buttons exactly where the old URLs used to be!
-        bottom_links_html = []
-        for orig_link, resolved_link in valid_deal_links:
-            affiliate_link = get_inrdeals_link_direct(resolved_link)
-            escaped_orig = html.escape(orig_link)
-            
-            inline_html = f"<a href='{affiliate_link}'><b>👉 Click Here To Buy</b></a>"
-            
-            if escaped_orig in clean_text:
-                clean_text = clean_text.replace(escaped_orig, inline_html)
-            else:
-                # If link was hidden in an invisible button, drop it at the bottom instead
-                bottom_links_html.append(inline_html)
-
-        if bottom_links_html:
-            clean_text += "\n\n🛍️ <b>EXTRA LINKS:</b>\n" + "\n".join(bottom_links_html)
-            
-        clean_text += f"\n\n🔥 <b>Join {DESTINATION_CHANNEL} for verified loot deals!</b>"
-        # ==================================================================
-
+        # 6. POST TO TELEGRAM
         bot_api_url = f"https://api.telegram.org/bot{BOT_TOKEN}"
         posted_successfully = False
 
