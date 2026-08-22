@@ -303,3 +303,9 @@ powerloot_205714
 powerloot_205715
 powerloot_205716
 powerloot_205717
+powerloot_205718
+powerloot_205719
+powerloot_205720
+powerloot_205721
+powerloot_205722
+powerloot_205723
