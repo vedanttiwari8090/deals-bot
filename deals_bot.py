@@ -19,7 +19,7 @@ SOURCE_CHANNELS = [
     "techgurukaka",
     "iamprasadtech",
     "+EA1nJVHLfPw0YzQ1",
-    "+YrRAN1v-nr5kZWI1"
+    "powerloot"
 ]
 
 INR_ID = "ayu679055639"
