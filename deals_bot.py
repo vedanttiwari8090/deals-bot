@@ -26,10 +26,12 @@ INR_ID = "ayu679055639"
 INR_KEY = "none"
 HISTORY_FILE = "posted_deals.txt"
 
+MAX_DEAL_AGE_HOURS = 1.5
+
 ALLOWED_DOMAINS = [
     "flipkart", "fkrt.it", "fkrt.co", "shopsy",
     "myntra", "myntr.it", "ajio", "tatacliq", "meesho",
-    "bit.ly", "cutt.ly", "tinyurl.com", "swiggy", "fktr.in", "zomato", "cuttli.in", "jio"
+    "bit.ly", "cutt.ly", "fpkrt.cc", "tinyurl.com", "swiggy", "fktr.in", "zomato", "cuttli.in", "jio"
 ]
 # ==============================================================================
 
@@ -133,7 +135,7 @@ def process_channel(source_channel, posted_history):
 
     all_messages = soup.find_all('div', class_='tgme_widget_message')
     # Focus only on the newest 6 messages to stay well within the 1-hour window
-    recent_messages = all_messages[-6:]
+    recent_messages = all_messages[-15:]
 
     for msg in recent_messages:
         raw_post_id = msg.get('data-post')
