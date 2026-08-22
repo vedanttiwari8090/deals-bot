@@ -138,7 +138,7 @@ def is_deal_fresh(msg_elem):
     return True
 
 def process_channel(source_channel, posted_history):
-    print(f"[*] Scanning: {source_channel}...")
+    print(f"\n[*] Scanning: {source_channel}...")
     url = f"https://t.me/s/{source_channel}"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
@@ -170,48 +170,40 @@ def process_channel(source_channel, posted_history):
             continue
 
         text_elem = msg.find('div', class_='tgme_widget_message_text')
-        if not text_elem:
-            continue
+        raw_text = text_elem.get_text(separator='\n') if text_elem else ""
 
-        embedded_links = [a.get('href') for a in text_elem.find_all('a') if a.get('href')]
-        raw_text = text_elem.get_text(separator='\n')
+        # Extract links from text AND inline buttons
+        embedded_links = [a.get('href') for a in msg.find_all('a') if a.get('href')]
         regex_links = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', raw_text)
         all_links = list(set(embedded_links + regex_links))
 
         valid_deal_links = []
-        normalized_product_urls = []
-        is_amazon = False
-        is_duplicate_product = False
+        is_amazon_link = False
         msg_text_lower = raw_text.lower()
 
         for link in all_links:
-            if "t.me" in link:
+            if "t.me" in link or "telegram.org" in link:
                 continue
 
             resolved = resolve_short_url(link)
             res_lower = resolved.lower()
             orig_lower = link.lower()
 
-            # 1. Block Amazon if found in URL OR the message text
-            if "amazon" in res_lower or "amzn" in res_lower or "amazon" in orig_lower or "amazon" in msg_text_lower:
-                is_amazon = True
+            # TRAP 1 FIXED: We now ONLY check the URLs for Amazon, not the message text!
+            if "amazon" in res_lower or "amzn" in res_lower or "amazon" in orig_lower:
+                is_amazon_link = True
                 break
 
-            # 2. Accept if domain is allowed OR if store name is explicitly mentioned in the text
+            # Accept if it's an allowed domain OR if the text explicitly mentions a target store
             is_valid_url = any(domain in res_lower for domain in ALLOWED_DOMAINS) or any(domain in orig_lower for domain in ALLOWED_DOMAINS)
             is_store_mentioned = any(store in msg_text_lower for store in ["flipkart", "shopsy", "myntra", "ajio", "tatacliq"])
 
             if is_valid_url or is_store_mentioned:
-                normalized = normalize_product_url(resolved)
-                
-                if normalized in posted_history:
-                    is_duplicate_product = True
-                    break
-
+                # TRAP 2 FIXED: We no longer deduplicate by URL to prevent Captcha poisoning.
                 valid_deal_links.append((link, resolved))
-                normalized_product_urls.append(normalized)
 
-        if is_amazon or is_duplicate_product or not valid_deal_links:
+        if is_amazon_link or not valid_deal_links:
+            print(f"    [-] Skipped {unique_id} (Amazon Link: {is_amazon_link}, No Valid Links: {not bool(valid_deal_links)})")
             with open(HISTORY_FILE, 'a') as f:
                 f.write(f"{unique_id}\n")
             posted_history.add(unique_id)
@@ -224,10 +216,7 @@ def process_channel(source_channel, posted_history):
             img_match = re.search(r"background-image:url\(['\"]?(.*?)['\"]?\)", style_str)
             if img_match:
                 raw_img = img_match.group(1).strip().strip("'\"")
-                if raw_img.startswith("//"):
-                    image_url = "https:" + raw_img
-                elif raw_img.startswith("http"):
-                    image_url = raw_img
+                image_url = "https:" + raw_img if raw_img.startswith("//") else raw_img
 
         final_text = raw_text
         for original_link in all_links:
@@ -250,43 +239,26 @@ def process_channel(source_channel, posted_history):
             try:
                 img_res = requests.get(image_url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
                 if img_res.status_code == 200:
-                    payload = {
-                        "chat_id": DESTINATION_CHANNEL,
-                        "caption": clean_text[:1024],
-                        "parse_mode": "HTML"
-                    }
-                    files = {
-                        "photo": ("image.jpg", img_res.content, "image/jpeg")
-                    }
+                    payload = {"chat_id": DESTINATION_CHANNEL, "caption": clean_text[:1024], "parse_mode": "HTML"}
+                    files = {"photo": ("image.jpg", img_res.content, "image/jpeg")}
                     res = requests.post(f"{bot_api_url}/sendPhoto", data=payload, files=files, timeout=15)
-                    if res.status_code == 200:
-                        posted_successfully = True
-            except Exception as e:
-                print(f"[!] Direct image upload failed: {e}")
+                    if res.status_code == 200: posted_successfully = True
+            except Exception:
+                pass
 
         if not posted_successfully:
             try:
-                payload = {
-                    "chat_id": DESTINATION_CHANNEL,
-                    "text": clean_text,
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": False
-                }
+                payload = {"chat_id": DESTINATION_CHANNEL, "text": clean_text, "parse_mode": "HTML"}
                 res = requests.post(f"{bot_api_url}/sendMessage", json=payload, timeout=10)
-                if res.status_code == 200:
-                    posted_successfully = True
-            except Exception as e:
+                if res.status_code == 200: posted_successfully = True
+            except Exception:
                 pass
 
         if posted_successfully:
-            print(f"[+] Successfully posted fresh deal from {source_channel}!")
+            print(f"    [+] Successfully posted deal from {source_channel}!")
             with open(HISTORY_FILE, 'a') as f:
                 f.write(f"{unique_id}\n")
-                for norm_url in normalized_product_urls:
-                    f.write(f"{norm_url}\n")
             posted_history.add(unique_id)
-            for norm_url in normalized_product_urls:
-                posted_history.add(norm_url)
 
         time.sleep(3)
 
