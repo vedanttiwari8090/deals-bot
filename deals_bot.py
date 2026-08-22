@@ -18,7 +18,7 @@ SOURCE_CHANNELS = [
     "lootjunctionn",
     "techgurukaka",
     "iamprasadtech",
-    "+EA1nJVHLfPw0YzQ1",
+    "myntra_Ajio_Sale_Deals_offers_li",
     "powerloot"
 ]
 
@@ -29,15 +29,17 @@ HISTORY_FILE = "posted_deals.txt"
 MAX_DEAL_AGE_HOURS = 3
 
 ALLOWED_DOMAINS = [
-    "flipkart", "fkrt", "shopsy", "myntra", "myntr", "ajio", "tatacliq", 
-    "meesho", "swiggy", "zomato", "jio", "croma", "myntr.it", "fkrt.cc",
-    "ern.li", "extp.in", "spndeals", "bit.ly", "cutt.ly", "cuttli.in", "tinyurl", 
-    "oia.bio", "openinapp", "halfoffer", "wishlink", "fktr.in", "telegram"
+   "flipkart", "fkrt", "shopsy", "myntra", "myntr", "ajio", "tatacliq", 
+    "meesho", "swiggy", "zomato", "jio", "croma", "nykaa", "boat-lifestyle",
+    "ern.li", "extp.in", "spndeals", "bit.ly", "cutt.ly", "tinyurl", 
+    "oia.bio", "openinapp", "halfoffer", "wishlink", "fktr", "cuttli", 
+    "affl.io", "linkvertise", "dealssh.in", "mdeal.in", "fkrt.cc", "myntr.it", 
+    "cuttli.in", "myntr.in", "fkrt.co", "fkrt.it"
 ]
 # ==============================================================================
 
 def resolve_short_url(url):
-    """Unshortens redirects and extracts JavaScript/meta refresh destinations."""
+    """Unshortens redirect links and parses hidden JavaScript/meta redirects."""
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
@@ -45,10 +47,12 @@ def resolve_short_url(url):
         res = requests.get(url, headers=headers, allow_redirects=True, timeout=6)
         final_url = res.url
         
+        # Check for JavaScript location replace
         js_match = re.search(r'window\.location\.(?:replace|href)\s*=\s*["\']([^"\']+)["\']', res.text)
         if js_match:
             final_url = js_match.group(1).replace('\\/', '/')
             
+        # Check for HTML meta refresh
         meta_match = re.search(r'content=["\']\d+;url=([^"\']+)["\']', res.text, re.IGNORECASE)
         if meta_match:
             final_url = meta_match.group(1).replace('\\/', '/')
@@ -61,8 +65,23 @@ def resolve_short_url(url):
     except Exception:
         return url
 
+def clean_product_fingerprint(url, raw_text):
+    """Creates a unique ID from product ID or post title to prevent cross-channel duplicates."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        query = urllib.parse.parse_qs(parsed.query)
+        for key in ['pid', 'id', 'productId', 'item', 'p']:
+            if key in query:
+                return f"PROD_{query[key][0]}"
+    except Exception:
+        pass
+    
+    # Fallback: clean the first 40 characters of message text
+    clean_title = re.sub(r'[^a-zA-Z0-9]', '', raw_text[:45]).lower()
+    return f"TITLE_{clean_title}" if len(clean_title) > 8 else None
+
 def get_inrdeals_link_direct(resolved_url):
-    """Creates INRDeals affiliate link without re-resolving."""
+    """Generates direct INRDeals affiliate link."""
     encoded_url = urllib.parse.quote(resolved_url, safe='')
 
     if INR_KEY and INR_KEY.lower() != "none":
@@ -77,6 +96,7 @@ def get_inrdeals_link_direct(resolved_url):
     return f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
 
 def clean_branding(text):
+    """Strips watermarks and replaces competitor tags."""
     if not text:
         return ""
     text = re.sub(r'(?i)extra\s*pe', '', text)
@@ -98,6 +118,7 @@ def clean_branding(text):
     return text
 
 def is_deal_fresh(msg_elem):
+    """Checks if message is within the configured time window."""
     time_elem = msg_elem.find('time', class_='time')
     if not time_elem or not time_elem.get('datetime'):
         return True
@@ -109,44 +130,23 @@ def is_deal_fresh(msg_elem):
         pass
     return True
 
-def fetch_messages_with_pagination(source_channel):
-    """Fetches up to 40 messages by requesting current and previous pages."""
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-    all_messages = []
-    
-    # 1. Fetch latest page
+def process_channel(source_channel, posted_history):
+    if source_channel.startswith("+"):
+        return
+
+    print(f"\n[*] Scanning: {source_channel}...")
     url = f"https://t.me/s/{source_channel}"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+
     try:
         res = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(res.text, 'html.parser')
-        msgs = soup.find_all('div', class_='tgme_widget_message')
-        all_messages.extend(msgs)
-        
-        # 2. Fetch previous page if messages exist
-        if msgs:
-            first_post_id = msgs[0].get('data-post', '').split('/')[-1]
-            if first_post_id and first_post_id.isdigit():
-                prev_url = f"https://t.me/s/{source_channel}?before={first_post_id}"
-                prev_res = requests.get(prev_url, headers=headers, timeout=10)
-                prev_soup = BeautifulSoup(prev_res.text, 'html.parser')
-                prev_msgs = prev_soup.find_all('div', class_='tgme_widget_message')
-                all_messages = prev_msgs + all_messages
+        messages = soup.find_all('div', class_='tgme_widget_message')
     except Exception as e:
-        print(f"[!] Error fetching {source_channel}: {e}")
-        
-    return all_messages
-
-def process_channel(source_channel, posted_history):
-    if source_channel.startswith("+"):
-        print(f"[!] Skipping '{source_channel}': Private channels cannot be scraped via web.")
+        print(f"[!] Error loading {source_channel}: {e}")
         return
 
-    print(f"\n==========================================")
-    print(f"[*] SCANNING CHANNEL: {source_channel}")
-    print(f"==========================================")
-
-    all_messages = fetch_messages_with_pagination(source_channel)
-    recent_messages = all_messages[-40:]
+    recent_messages = messages[-35:]
 
     for msg in recent_messages:
         raw_post_id = msg.get('data-post')
@@ -160,9 +160,9 @@ def process_channel(source_channel, posted_history):
             continue
 
         if not is_deal_fresh(msg):
+            posted_history.add(unique_id)
             with open(HISTORY_FILE, 'a') as f:
                 f.write(f"{unique_id}\n")
-            posted_history.add(unique_id)
             continue
 
         text_elem = msg.find('div', class_='tgme_widget_message_text')
@@ -183,22 +183,32 @@ def process_channel(source_channel, posted_history):
             res_lower = resolved.lower()
             orig_lower = link.lower()
 
-            # Skip Amazon links individually (do not break the whole post)
+            # Skip Amazon products
             if "amazon" in res_lower or "amzn" in res_lower or "amazon" in orig_lower:
                 continue
 
             is_valid_url = any(d in res_lower for d in ALLOWED_DOMAINS) or any(d in orig_lower for d in ALLOWED_DOMAINS)
-            is_store_mentioned = any(s in msg_text_lower for s in ["flipkart", "shopsy", "myntra", "ajio", "tatacliq"])
+            is_store_mentioned = any(s in msg_text_lower for s in ["flipkart", "shopsy", "myntra", "ajio", "tatacliq", "croma", "meesho"])
 
             if is_valid_url or is_store_mentioned:
                 valid_deal_links.append((link, resolved))
 
         if not valid_deal_links:
+            posted_history.add(unique_id)
             with open(HISTORY_FILE, 'a') as f:
                 f.write(f"{unique_id}\n")
-            posted_history.add(unique_id)
             continue
 
+        # Prevent cross-channel duplicate posts of the same item
+        primary_link = valid_deal_links[0][1]
+        fingerprint = clean_product_fingerprint(primary_link, raw_text)
+        if fingerprint and fingerprint in posted_history:
+            posted_history.add(unique_id)
+            with open(HISTORY_FILE, 'a') as f:
+                f.write(f"{unique_id}\n")
+            continue
+
+        # Extract image if available
         image_url = None
         photo_wrap = msg.find(class_=re.compile('tgme_widget_message_photo_wrap'))
         if photo_wrap and photo_wrap.has_attr('style'):
@@ -207,6 +217,7 @@ def process_channel(source_channel, posted_history):
                 raw_img = img_match.group(1).strip().strip("'\"")
                 image_url = "https:" + raw_img if raw_img.startswith("//") else raw_img
 
+        # Prepare text & affiliate buttons
         final_text = raw_text
         for original_link in all_links:
             final_text = final_text.replace(original_link, "")
@@ -223,20 +234,31 @@ def process_channel(source_channel, posted_history):
         bot_api_url = f"https://api.telegram.org/bot{BOT_TOKEN}"
         posted_successfully = False
 
+        # Attempt to post with photo
         if image_url:
             try:
                 img_res = requests.get(image_url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
                 if img_res.status_code == 200:
-                    payload = {"chat_id": DESTINATION_CHANNEL, "caption": clean_text[:1024], "parse_mode": "HTML"}
-                    res = requests.post(f"{bot_api_url}/sendPhoto", data=payload, files={"photo": ("image.jpg", img_res.content, "image/jpeg")}, timeout=15)
+                    payload = {
+                        "chat_id": DESTINATION_CHANNEL,
+                        "caption": clean_text[:1020],
+                        "parse_mode": "HTML"
+                    }
+                    files = {"photo": ("image.jpg", img_res.content, "image/jpeg")}
+                    res = requests.post(f"{bot_api_url}/sendPhoto", data=payload, files=files, timeout=15)
                     if res.status_code == 200:
                         posted_successfully = True
             except Exception:
                 pass
 
+        # Text-only fallback (only runs if photo upload was not attempted or failed before sending)
         if not posted_successfully:
             try:
-                payload = {"chat_id": DESTINATION_CHANNEL, "text": clean_text, "parse_mode": "HTML"}
+                payload = {
+                    "chat_id": DESTINATION_CHANNEL,
+                    "text": clean_text[:4000],
+                    "parse_mode": "HTML"
+                }
                 res = requests.post(f"{bot_api_url}/sendMessage", json=payload, timeout=10)
                 if res.status_code == 200:
                     posted_successfully = True
@@ -244,11 +266,15 @@ def process_channel(source_channel, posted_history):
                 pass
 
         if posted_successfully:
-            print(f"[+] 🚀 SUCCESS: Deal {unique_id} posted to Telegram!")
+            print(f"[+] Posted deal: {unique_id}")
+            posted_history.add(unique_id)
             with open(HISTORY_FILE, 'a') as f:
                 f.write(f"{unique_id}\n")
-            posted_history.add(unique_id)
-        
+            if fingerprint:
+                posted_history.add(fingerprint)
+                with open(HISTORY_FILE, 'a') as f:
+                    f.write(f"{fingerprint}\n")
+
         time.sleep(2)
 
 def run():
