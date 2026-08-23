@@ -39,27 +39,51 @@ ALLOWED_DOMAINS = [
 # ==============================================================================
 
 def clean_store_url(url):
-    """Strips competitor affiliate tags and keeps clean canonical product links."""
+    """Safely cleans store URLs without breaking schemes or vital parameters."""
+    if not url or not isinstance(url, str):
+        return url
+
+    # 1. Ensure scheme is present
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url.lstrip('/')
+
     try:
         parsed = urllib.parse.urlparse(url)
         netloc = parsed.netloc.lower()
-        
+
+        # If netloc is missing (e.g. was just a path), fallback
+        if not netloc:
+            return url
+
+        # Flipkart & Shopsy: Keep core identifiers
         if "flipkart.com" in netloc or "shopsy" in netloc:
             qs = urllib.parse.parse_qs(parsed.query)
-            allowed = ['pid', 'lid', 'marketplace', 'spotlightTagId']
+            allowed = ['pid', 'lid', 'marketplace', 'spotlightTagId', 'offer']
             clean_qs = {k: v for k, v in qs.items() if k in allowed}
-            new_query = urllib.parse.urlencode(clean_qs, doseq=True)
-            return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', new_query, ''))
             
+            # If query had parameters but none matched allowed, keep original query to prevent 404s
+            if qs and not clean_qs:
+                new_query = parsed.query
+            else:
+                new_query = urllib.parse.urlencode(clean_qs, doseq=True)
+
+            return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', new_query, ''))
+
+        # Myntra & Ajio: Clean tracking parameters safely
         if "myntra.com" in netloc or "ajio.com" in netloc:
             clean_path = parsed.path.rstrip('/')
             return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, clean_path, '', '', ''))
+
     except Exception:
         pass
+        
     return url
 
 def resolve_short_url(url):
-    """Unshortens redirects and resolves through shorteners to find final product URL."""
+    """Unshortens redirects and ensures a fully qualified HTTPS destination."""
+    if not url:
+        return ""
+
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -84,18 +108,20 @@ def resolve_short_url(url):
 
             if not next_url:
                 break
-                
+
+            # Reconstruct relative paths into absolute URLs
             if next_url.startswith('/'):
-                parsed = urllib.parse.urlparse(current_url)
-                next_url = f"{parsed.scheme}://{parsed.netloc}{next_url}"
-                
+                parsed_cur = urllib.parse.urlparse(current_url)
+                next_url = f"{parsed_cur.scheme or 'https'}://{parsed_cur.netloc}{next_url}"
+
             current_url = next_url
             
+            # Stop if we reached a canonical product page
             if "flipkart.com" in current_url.lower() and ("/p/" in current_url.lower() or "pid=" in current_url.lower()):
                 break
         except Exception:
             break
-            
+
     return clean_store_url(current_url)
 
 def clean_product_fingerprint(url, raw_text):
@@ -115,8 +141,13 @@ def clean_product_fingerprint(url, raw_text):
     return f"TITLE_{clean_title}" if len(clean_title) > 8 else None
 
 def get_inrdeals_link_direct(resolved_url):
-    """Generates direct INRDeals affiliate link without extra redirect overhead."""
+    """Validates destination URL before passing to INRDeals to prevent server crashes."""
     clean_url = clean_store_url(resolved_url)
+    
+    # Defensive check: Must be a full valid HTTP/HTTPS link
+    if not clean_url or not clean_url.startswith(('http://', 'https://')):
+        return resolved_url
+
     encoded_url = urllib.parse.quote(clean_url, safe='')
 
     if INR_KEY and INR_KEY.lower() != "none":
