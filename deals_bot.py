@@ -37,54 +37,42 @@ ALLOWED_DOMAINS = [
     "cuttli.in", "myntr.in", "fkrt.co", "fkrt.it"
 ]
 # ==============================================================================
+
 def clean_store_url(url):
-    """
-    Strips competitor affiliate parameters and tracking tags 
-    so INRDeals can cleanly tag the canonical product URL.
-    """
+    """Strips competitor affiliate tags and keeps clean canonical product links."""
     try:
         parsed = urllib.parse.urlparse(url)
         netloc = parsed.netloc.lower()
         
-        # Clean Flipkart / Shopsy URLs
         if "flipkart.com" in netloc or "shopsy" in netloc:
             qs = urllib.parse.parse_qs(parsed.query)
-            # Retain only necessary product identifiers
             allowed = ['pid', 'lid', 'marketplace', 'spotlightTagId']
             clean_qs = {k: v for k, v in qs.items() if k in allowed}
             new_query = urllib.parse.urlencode(clean_qs, doseq=True)
             return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', new_query, ''))
             
-        # Clean Myntra / Ajio URLs
         if "myntra.com" in netloc or "ajio.com" in netloc:
             clean_path = parsed.path.rstrip('/')
             return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, clean_path, '', '', ''))
-            
     except Exception:
         pass
     return url
 
 def resolve_short_url(url):
-    """
-    Follows redirects through shorteners and mobile bridge links
-    to find the full canonical product URL.
-    """
+    """Unshortens redirects and resolves through shorteners to find final product URL."""
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
     current_url = url
     
-    for _ in range(8):  # Allow up to 8 hops for layered shorteners
+    for _ in range(8):
         try:
             res = requests.get(current_url, headers=headers, allow_redirects=False, timeout=6)
             next_url = None
             
-            # 1. Standard HTTP 301/302/307 Redirects
             if res.status_code in (301, 302, 303, 307, 308):
                 next_url = res.headers.get('Location')
-            
-            # 2. JavaScript / Meta Refresh Redirects
             elif res.status_code == 200:
                 js_match = re.search(r'window\.location\.(?:replace|href)\s*=\s*["\']([^"\']+)["\']', res.text)
                 if js_match:
@@ -103,18 +91,31 @@ def resolve_short_url(url):
                 
             current_url = next_url
             
-            # If we reach a canonical product page (contains /p/ or ?pid=), stop redirecting
             if "flipkart.com" in current_url.lower() and ("/p/" in current_url.lower() or "pid=" in current_url.lower()):
                 break
-                
         except Exception:
             break
             
-    # Clean tracking tags before returning
     return clean_store_url(current_url)
 
+def clean_product_fingerprint(url, raw_text):
+    """Creates unique identifier to prevent cross-channel duplicate posts."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        query = urllib.parse.parse_qs(parsed.query)
+        for key in ['pid', 'id', 'productId', 'item', 'p']:
+            if key in query:
+                return f"PROD_{query[key][0]}"
+        path_parts = parsed.path.strip('/').split('/')
+        if len(path_parts) > 0 and len(path_parts[-1]) >= 4:
+            return f"PROD_{path_parts[-1]}"
+    except Exception:
+        pass
+    clean_title = re.sub(r'[^a-zA-Z0-9]', '', raw_text[:40]).lower()
+    return f"TITLE_{clean_title}" if len(clean_title) > 8 else None
+
 def get_inrdeals_link_direct(resolved_url):
-    """Encodes the clean canonical product URL for INRDeals tracking."""
+    """Generates direct INRDeals affiliate link without extra redirect overhead."""
     clean_url = clean_store_url(resolved_url)
     encoded_url = urllib.parse.quote(clean_url, safe='')
 
@@ -128,9 +129,11 @@ def get_inrdeals_link_direct(resolved_url):
             pass
 
     return f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
-    
+
 def clean_branding(text):
-    if not text: return ""
+    """Strips watermarks and handles from competitor posts."""
+    if not text:
+        return ""
     text = re.sub(r'(?i)extra\s*pe', '', text)
     text = re.sub(r'(?i)earnkaro', '', text)
     text = re.sub(r'(?i)inrdeals', '', text)
@@ -138,21 +141,32 @@ def clean_branding(text):
     text = re.sub(r't\.me/[a-zA-Z0-9_+]+', f't.me/{CHANNEL_USERNAME}', text)
     text = re.sub(r'@[a-zA-Z0-9_]+', DESTINATION_CHANNEL, text)
 
-    filler_phrases = ["Join our backup channel", "Join fast", "Loot fast", "Share with friends", "Join our discussion group", "Channel link:"]
-    for phrase in filler_phrases: text = re.sub(re.escape(phrase), '', text, flags=re.IGNORECASE)
+    filler_phrases = [
+        "Join our backup channel", "Join fast", "Loot fast",
+        "Share with friends", "Join our discussion group", "Channel link:"
+    ]
+    for phrase in filler_phrases:
+        text = re.sub(re.escape(phrase), '', text, flags=re.IGNORECASE)
+
     return text.strip()
 
 def is_deal_fresh(msg_elem):
+    """Verifies that the deal timestamp is within the configured window."""
     time_elem = msg_elem.find('time', class_='time')
-    if not time_elem or not time_elem.get('datetime'): return True
+    if not time_elem or not time_elem.get('datetime'):
+        return True
     try:
         post_time = datetime.fromisoformat(time_elem['datetime'])
-        if (datetime.now(timezone.utc) - post_time) > timedelta(hours=MAX_DEAL_AGE_HOURS): return False
-    except: pass
+        if (datetime.now(timezone.utc) - post_time) > timedelta(hours=MAX_DEAL_AGE_HOURS):
+            return False
+    except Exception:
+        pass
     return True
 
 def process_channel(source_channel, posted_history):
-    if source_channel.startswith("+"): return
+    if source_channel.startswith("+"):
+        return
+
     print(f"\n[*] Scanning: {source_channel}...")
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
@@ -166,26 +180,27 @@ def process_channel(source_channel, posted_history):
 
     for msg in messages:
         raw_post_id = msg.get('data-post')
-        if not raw_post_id: continue
+        if not raw_post_id:
+            continue
         unique_id = f"{source_channel}_{raw_post_id.split('/')[-1]}"
 
-        if unique_id in posted_history: continue
+        if unique_id in posted_history:
+            continue
 
         if not is_deal_fresh(msg):
             posted_history.add(unique_id)
-            with open(HISTORY_FILE, 'a') as f: f.write(f"{unique_id}\n")
+            with open(HISTORY_FILE, 'a') as f:
+                f.write(f"{unique_id}\n")
             continue
 
         text_elem = msg.find('div', class_='tgme_widget_message_text')
-        
-        # Format HTML breaks to newlines before extracting text
         if text_elem:
-            for br in text_elem.find_all("br"): br.replace_with("\n")
+            for br in text_elem.find_all("br"):
+                br.replace_with("\n")
         
         raw_text = text_elem.get_text() if text_elem else ""
         msg_text_lower = raw_text.lower()
 
-        # 1. EXTRACT REAL LINKS & VISUAL TEXT FROM HTML
         inline_links = []
         if text_elem:
             for a_tag in text_elem.find_all('a'):
@@ -193,20 +208,19 @@ def process_channel(source_channel, posted_history):
                 if href and not href.startswith(('mailto:', 'tel:')):
                     inline_links.append({"url": href, "text": a_tag.get_text()})
 
-        # 2. RESOLVE & VERIFY LINKS
-        valid_deal_links = [] # Will hold tuples of (Old Display Text, New HTML Button)
+        valid_deal_links = []
         primary_link = None
         
         for link_obj in inline_links:
             href = link_obj['url']
             display_text = link_obj['text']
             
-            if "t.me" in href or "telegram.org" in href: continue
+            if "t.me" in href or "telegram.org" in href:
+                continue
                 
             resolved = resolve_short_url(href)
             res_lower = resolved.lower()
             
-            # Delete Amazon links entirely
             if "amazon" in res_lower or "amzn" in res_lower:
                 valid_deal_links.append((display_text, ""))
                 continue
@@ -214,40 +228,37 @@ def process_channel(source_channel, posted_history):
             is_valid = any(d in res_lower for d in ALLOWED_DOMAINS) or any(s in msg_text_lower for s in ["flipkart", "shopsy", "myntra", "ajio", "tatacliq", "croma", "meesho"])
             
             if is_valid:
-                if not primary_link: primary_link = resolved
+                if not primary_link:
+                    primary_link = resolved
                 aff_link = get_inrdeals_link_direct(resolved)
                 new_html = f"<a href='{aff_link}'><b>👉 Click Here To Buy</b></a>"
                 valid_deal_links.append((display_text, new_html))
             else:
-                # Erase unknown junk links
                 valid_deal_links.append((display_text, ""))
 
-        # 3. VERIFY DEDUPLICATION
         if not primary_link:
             posted_history.add(unique_id)
-            with open(HISTORY_FILE, 'a') as f: f.write(f"{unique_id}\n")
+            with open(HISTORY_FILE, 'a') as f:
+                f.write(f"{unique_id}\n")
             continue
 
         fingerprint = clean_product_fingerprint(primary_link, raw_text)
         if fingerprint and fingerprint in posted_history:
             posted_history.add(unique_id)
-            with open(HISTORY_FILE, 'a') as f: f.write(f"{unique_id}\n")
+            with open(HISTORY_FILE, 'a') as f:
+                f.write(f"{unique_id}\n")
             continue
 
-        # 4. PERFECT INLINE TEXT REPLACEMENT
         final_text = html.escape(raw_text)
         
-        # Replace the exact visible text with our new button on the exact same line!
         for old_display_text, new_html_button in valid_deal_links:
             escaped_display = html.escape(old_display_text)
             if escaped_display:
-                # replace(..., 1) ensures we only replace the specific link, not normal words
                 final_text = final_text.replace(escaped_display, new_html_button, 1)
 
         clean_text = clean_branding(final_text)
         clean_text += f"\n\n🔥 <b>Join {DESTINATION_CHANNEL} for verified loot deals!</b>"
 
-        # 5. FETCH IMAGE
         image_url = None
         photo_wrap = msg.find(class_=re.compile('tgme_widget_message_photo_wrap'))
         if photo_wrap and photo_wrap.has_attr('style'):
@@ -256,7 +267,6 @@ def process_channel(source_channel, posted_history):
                 raw_img = img_match.group(1).strip().strip("'\"")
                 image_url = "https:" + raw_img if raw_img.startswith("//") else raw_img
 
-        # 6. POST TO TELEGRAM
         bot_api_url = f"https://api.telegram.org/bot{BOT_TOKEN}"
         posted_successfully = False
 
@@ -267,29 +277,37 @@ def process_channel(source_channel, posted_history):
                     payload = {"chat_id": DESTINATION_CHANNEL, "caption": clean_text[:1020], "parse_mode": "HTML"}
                     files = {"photo": ("image.jpg", img_res.content, "image/jpeg")}
                     res = requests.post(f"{bot_api_url}/sendPhoto", data=payload, files=files, timeout=15)
-                    if res.status_code == 200: posted_successfully = True
-            except: pass
+                    if res.status_code == 200:
+                        posted_successfully = True
+            except Exception:
+                pass
 
         if not posted_successfully:
             try:
                 payload = {"chat_id": DESTINATION_CHANNEL, "text": clean_text[:4000], "parse_mode": "HTML"}
                 res = requests.post(f"{bot_api_url}/sendMessage", json=payload, timeout=10)
-                if res.status_code == 200: posted_successfully = True
-            except: pass
+                if res.status_code == 200:
+                    posted_successfully = True
+            except Exception:
+                pass
 
         if posted_successfully:
             print(f"[+] Posted deal: {unique_id}")
             posted_history.add(unique_id)
-            with open(HISTORY_FILE, 'a') as f: f.write(f"{unique_id}\n")
+            with open(HISTORY_FILE, 'a') as f:
+                f.write(f"{unique_id}\n")
             if fingerprint:
                 posted_history.add(fingerprint)
-                with open(HISTORY_FILE, 'a') as f: f.write(f"{fingerprint}\n")
+                with open(HISTORY_FILE, 'a') as f:
+                    f.write(f"{fingerprint}\n")
 
         time.sleep(2)
 
 def run():
-    if not os.path.exists(HISTORY_FILE): open(HISTORY_FILE, 'w').close()
-    with open(HISTORY_FILE, 'r') as f: posted_history = set(line.strip() for line in f if line.strip())
+    if not os.path.exists(HISTORY_FILE):
+        open(HISTORY_FILE, 'w').close()
+    with open(HISTORY_FILE, 'r') as f:
+        posted_history = set(line.strip() for line in f if line.strip())
 
     for channel in SOURCE_CHANNELS:
         process_channel(channel, posted_history)
