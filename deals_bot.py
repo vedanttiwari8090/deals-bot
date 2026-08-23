@@ -87,15 +87,31 @@ def resolve_short_url(url):
     return current_url
 
 def clean_product_fingerprint(url, raw_text):
+    """Creates a unique ID to prevent cross-channel duplicates, now supporting shortlinks!"""
     try:
         parsed = urllib.parse.urlparse(url)
+        
+        # 1. Look for standard Product IDs (pid, id, etc.)
         query = urllib.parse.parse_qs(parsed.query)
         for key in ['pid', 'id', 'productId', 'item', 'p']:
-            if key in query: return f"PROD_{query[key][0]}"
-    except: pass
-    clean_title = re.sub(r'[^a-zA-Z0-9]', '', raw_text[:45]).lower()
+            if key in query: 
+                return f"PROD_{query[key][0]}"
+        
+        # 2. Look for Shortlink Unique Codes (e.g., dl.flipkart.com/s/XYZ123)
+        # This extracts the 'XYZ123' part from the end of the URL to use as the ID
+        path_parts = parsed.path.strip('/').split('/')
+        if len(path_parts) > 0 and path_parts[-1]:
+            # Ensure it's not an empty string and grab the last part of the link
+            if len(path_parts[-1]) >= 4:
+                return f"PROD_{path_parts[-1]}"
+                
+    except Exception:
+        pass
+    
+    # 3. Fallback: If no link ID is found, use the first few words of the post
+    clean_title = re.sub(r'[^a-zA-Z0-9]', '', raw_text[:40]).lower()
     return f"TITLE_{clean_title}" if len(clean_title) > 8 else None
-
+    
 def get_inrdeals_link_direct(resolved_url):
     encoded_url = urllib.parse.quote(resolved_url, safe='')
     if INR_KEY and INR_KEY.lower() != "none":
