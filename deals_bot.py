@@ -37,29 +37,54 @@ ALLOWED_DOMAINS = [
     "cuttli.in", "myntr.in", "fkrt.co", "fkrt.it"
 ]
 # ==============================================================================
-
 def resolve_short_url(url):
-    """Unshortens redirect links and parses hidden JavaScript/meta redirects."""
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-        }
-        res = requests.get(url, headers=headers, allow_redirects=True, timeout=6)
-        final_url = res.url
-        
-        js_match = re.search(r'window\.location\.(?:replace|href)\s*=\s*["\']([^"\']+)["\']', res.text)
-        if js_match: final_url = js_match.group(1).replace('\\/', '/')
+    """Manually follows redirects and STOPS before Flipkart's Captcha wall can trigger."""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+    }
+    current_url = url
+    
+    for _ in range(5):  # Maximum of 5 redirect jumps to prevent endless loops
+        try:
+            # allow_redirects=False is the secret. We take manual control of the jumps!
+            res = requests.get(current_url, headers=headers, allow_redirects=False, timeout=6)
+            next_url = None
             
-        meta_match = re.search(r'content=["\']\d+;url=([^"\']+)["\']', res.text, re.IGNORECASE)
-        if meta_match: final_url = meta_match.group(1).replace('\\/', '/')
+            # 1. Check for standard HTTP redirect (EarnKaro, Bitly, etc.)
+            if res.status_code in (301, 302, 303, 307, 308):
+                next_url = res.headers.get('Location')
+            
+            # 2. Check for hidden HTML/JS redirects (ExtraPe, etc.)
+            elif res.status_code == 200:
+                js_match = re.search(r'window\.location\.(?:replace|href)\s*=\s*["\']([^"\']+)["\']', res.text)
+                if js_match:
+                    next_url = js_match.group(1).replace('\\/', '/')
+                else:
+                    meta_match = re.search(r'content=["\']\d+;url=([^"\']+)["\']', res.text, re.IGNORECASE)
+                    if meta_match:
+                        next_url = meta_match.group(1).replace('\\/', '/')
 
-        if final_url != res.url and final_url.startswith("http"):
-            res2 = requests.get(final_url, headers=headers, allow_redirects=True, timeout=5)
-            return res2.url
+            if not next_url:
+                break  # We reached the final destination
+                
+            # Fix broken relative URLs
+            if next_url.startswith('/'):
+                parsed = urllib.parse.urlparse(current_url)
+                next_url = f"{parsed.scheme}://{parsed.netloc}{next_url}"
+                
+            current_url = next_url
+            
+            # =========================================================
+            # THE SMART BRAKE: Stop immediately if we hit a shopping app!
+            # =========================================================
+            store_domains = ['flipkart.com', 'dl.flipkart.com', 'myntra.com', 'shopsy.in', 'ajio.com']
+            if any(store in current_url.lower() for store in store_domains):
+                break # Stop the loop before the Captcha triggers!
 
-        return final_url
-    except Exception:
-        return url
+        except Exception:
+            break
+            
+    return current_url
 
 def clean_product_fingerprint(url, raw_text):
     try:
