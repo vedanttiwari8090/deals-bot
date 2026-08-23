@@ -37,24 +37,54 @@ ALLOWED_DOMAINS = [
     "cuttli.in", "myntr.in", "fkrt.co", "fkrt.it"
 ]
 # ==============================================================================
+def clean_store_url(url):
+    """
+    Strips competitor affiliate parameters and tracking tags 
+    so INRDeals can cleanly tag the canonical product URL.
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+        netloc = parsed.netloc.lower()
+        
+        # Clean Flipkart / Shopsy URLs
+        if "flipkart.com" in netloc or "shopsy" in netloc:
+            qs = urllib.parse.parse_qs(parsed.query)
+            # Retain only necessary product identifiers
+            allowed = ['pid', 'lid', 'marketplace', 'spotlightTagId']
+            clean_qs = {k: v for k, v in qs.items() if k in allowed}
+            new_query = urllib.parse.urlencode(clean_qs, doseq=True)
+            return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', new_query, ''))
+            
+        # Clean Myntra / Ajio URLs
+        if "myntra.com" in netloc or "ajio.com" in netloc:
+            clean_path = parsed.path.rstrip('/')
+            return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, clean_path, '', '', ''))
+            
+    except Exception:
+        pass
+    return url
+
 def resolve_short_url(url):
-    """Manually follows redirects and STOPS before Flipkart's Captcha wall can trigger."""
+    """
+    Follows redirects through shorteners and mobile bridge links
+    to find the full canonical product URL.
+    """
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     }
     current_url = url
     
-    for _ in range(5):  # Maximum of 5 redirect jumps to prevent endless loops
+    for _ in range(8):  # Allow up to 8 hops for layered shorteners
         try:
-            # allow_redirects=False is the secret. We take manual control of the jumps!
             res = requests.get(current_url, headers=headers, allow_redirects=False, timeout=6)
             next_url = None
             
-            # 1. Check for standard HTTP redirect (EarnKaro, Bitly, etc.)
+            # 1. Standard HTTP 301/302/307 Redirects
             if res.status_code in (301, 302, 303, 307, 308):
                 next_url = res.headers.get('Location')
             
-            # 2. Check for hidden HTML/JS redirects (ExtraPe, etc.)
+            # 2. JavaScript / Meta Refresh Redirects
             elif res.status_code == 200:
                 js_match = re.search(r'window\.location\.(?:replace|href)\s*=\s*["\']([^"\']+)["\']', res.text)
                 if js_match:
@@ -65,63 +95,40 @@ def resolve_short_url(url):
                         next_url = meta_match.group(1).replace('\\/', '/')
 
             if not next_url:
-                break  # We reached the final destination
+                break
                 
-            # Fix broken relative URLs
             if next_url.startswith('/'):
                 parsed = urllib.parse.urlparse(current_url)
                 next_url = f"{parsed.scheme}://{parsed.netloc}{next_url}"
                 
             current_url = next_url
             
-            # =========================================================
-            # THE SMART BRAKE: Stop immediately if we hit a shopping app!
-            # =========================================================
-            store_domains = ['flipkart.com', 'dl.flipkart.com', 'myntra.com', 'shopsy.in', 'ajio.com']
-            if any(store in current_url.lower() for store in store_domains):
-                break # Stop the loop before the Captcha triggers!
-
+            # If we reach a canonical product page (contains /p/ or ?pid=), stop redirecting
+            if "flipkart.com" in current_url.lower() and ("/p/" in current_url.lower() or "pid=" in current_url.lower()):
+                break
+                
         except Exception:
             break
             
-    return current_url
+    # Clean tracking tags before returning
+    return clean_store_url(current_url)
 
-def clean_product_fingerprint(url, raw_text):
-    """Creates a unique ID to prevent cross-channel duplicates, now supporting shortlinks!"""
-    try:
-        parsed = urllib.parse.urlparse(url)
-        
-        # 1. Look for standard Product IDs (pid, id, etc.)
-        query = urllib.parse.parse_qs(parsed.query)
-        for key in ['pid', 'id', 'productId', 'item', 'p']:
-            if key in query: 
-                return f"PROD_{query[key][0]}"
-        
-        # 2. Look for Shortlink Unique Codes (e.g., dl.flipkart.com/s/XYZ123)
-        # This extracts the 'XYZ123' part from the end of the URL to use as the ID
-        path_parts = parsed.path.strip('/').split('/')
-        if len(path_parts) > 0 and path_parts[-1]:
-            # Ensure it's not an empty string and grab the last part of the link
-            if len(path_parts[-1]) >= 4:
-                return f"PROD_{path_parts[-1]}"
-                
-    except Exception:
-        pass
-    
-    # 3. Fallback: If no link ID is found, use the first few words of the post
-    clean_title = re.sub(r'[^a-zA-Z0-9]', '', raw_text[:40]).lower()
-    return f"TITLE_{clean_title}" if len(clean_title) > 8 else None
-    
 def get_inrdeals_link_direct(resolved_url):
-    encoded_url = urllib.parse.quote(resolved_url, safe='')
+    """Encodes the clean canonical product URL for INRDeals tracking."""
+    clean_url = clean_store_url(resolved_url)
+    encoded_url = urllib.parse.quote(clean_url, safe='')
+
     if INR_KEY and INR_KEY.lower() != "none":
         api_url = f"https://inr.deals/api/request/affiliatelink?id={INR_ID}&key={INR_KEY}&url={encoded_url}"
         try:
             res = requests.get(api_url, timeout=6).json()
-            if res.get("status") is True and "url" in res: return res.get("url")
-        except: pass
-    return f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
+            if res.get("status") is True and "url" in res:
+                return res.get("url")
+        except Exception:
+            pass
 
+    return f"https://inr.deals/track?id={INR_ID}&url={encoded_url}"
+    
 def clean_branding(text):
     if not text: return ""
     text = re.sub(r'(?i)extra\s*pe', '', text)
