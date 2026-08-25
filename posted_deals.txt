@@ -1315,3 +1315,11 @@ powerloot_207015
 powerloot_207016
 powerloot_207017
 powerloot_207018
+powerloot_207019
+powerloot_207020
+powerloot_207021
+powerloot_207022
+powerloot_207023
+powerloot_207024
+powerloot_207025
+powerloot_207026
