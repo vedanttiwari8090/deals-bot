@@ -2029,3 +2029,12 @@ powerloot_208234
 powerloot_208235
 powerloot_208236
 powerloot_208237
+lootjunctionn_56131
+PROD_super-tez-bau-may-26-store
+lootjunctionn_56132
+PROD_VSZGZPZ8GUG4TWVH
+powerloot_208238
+powerloot_208239
+PROD_HCSFRWUKUAQFCBFQ
+powerloot_208240
+PROD_FANEQTHC6J5YSGEN
