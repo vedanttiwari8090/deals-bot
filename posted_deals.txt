@@ -1926,3 +1926,10 @@ lootjunctionn_56118
 PROD_MOVG7GJZXXY4MHSZ
 myntra_Ajio_Sale_Deals_offers_li_9125
 powerloot_208168
+myntra_Ajio_Sale_Deals_offers_li_9126
+myntra_Ajio_Sale_Deals_offers_li_9127
+powerloot_208169
+powerloot_208170
+powerloot_208171
+powerloot_208172
+powerloot_208173
