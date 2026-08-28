@@ -5,7 +5,12 @@ on:
     # Runs every 15 minutes at off-peak minute intervals
     - cron: '3,18,33,48 * * * *'
   workflow_dispatch:
-  
+  repository_dispatch:
+    types: [run-bot]
+
+permissions:
+  contents: write
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -19,16 +24,18 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: |
+          pip install requests beautifulsoup4
 
       - name: Run Deals Bot
-        run: python deals_bot.py
+        run: |
+          python deals_bot.py
 
       - name: Save posted deals history back to Github
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add posted_deals.txt
-          git commit -m "Saved new deals history" || echo "No new deals to save"
+          git commit -m "Saved new deals history" || echo "No changes to commit"
           git pull --rebase origin main
           git push
