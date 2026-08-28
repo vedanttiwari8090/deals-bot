@@ -1975,3 +1975,7 @@ powerloot_208200
 powerloot_208201
 powerloot_208202
 powerloot_208203
+powerloot_208204
+powerloot_208205
+powerloot_208206
+powerloot_208207
