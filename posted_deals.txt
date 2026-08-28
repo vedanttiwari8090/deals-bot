@@ -2005,3 +2005,9 @@ powerloot_208220
 powerloot_208221
 powerloot_208222
 powerloot_208223
+powerloot_208224
+powerloot_208225
+powerloot_208226
+powerloot_208227
+powerloot_208228
+powerloot_208229
