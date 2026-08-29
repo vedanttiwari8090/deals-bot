@@ -2570,3 +2570,9 @@ powerloot_208610
 powerloot_208611
 powerloot_208612
 powerloot_208613
+powerloot_208614
+powerloot_208615
+powerloot_208616
+powerloot_208617
+powerloot_208618
+powerloot_208619
