@@ -2829,3 +2829,12 @@ powerloot_208771
 powerloot_208772
 powerloot_208773
 powerloot_208774
+powerloot_208775
+powerloot_208776
+powerloot_208777
+powerloot_208778
+powerloot_208779
+powerloot_208780
+powerloot_208781
+powerloot_208782
+powerloot_208783
