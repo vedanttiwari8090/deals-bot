@@ -2380,3 +2380,5 @@ powerloot_208475
 powerloot_208476
 powerloot_208477
 powerloot_208478
+powerloot_208479
+powerloot_208480
