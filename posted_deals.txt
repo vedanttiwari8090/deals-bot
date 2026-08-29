@@ -2394,3 +2394,5 @@ myntra_Ajio_Sale_Deals_offers_li_9172
 myntra_Ajio_Sale_Deals_offers_li_9173
 powerloot_208482
 powerloot_208483
+powerloot_208484
+powerloot_208485
