@@ -2229,3 +2229,6 @@ powerloot_208367
 powerloot_208368
 TITLE_lootupto87offonbrandedbackpack
 powerloot_208369
+powerloot_208370
+powerloot_208371
+powerloot_208372
