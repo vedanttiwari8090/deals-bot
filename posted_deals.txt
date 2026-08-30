@@ -2961,3 +2961,10 @@ powerloot_208849
 myntra_Ajio_Sale_Deals_offers_li_9229
 powerloot_208850
 powerloot_208851
+myntra_Ajio_Sale_Deals_offers_li_9230
+myntra_Ajio_Sale_Deals_offers_li_9231
+powerloot_208852
+powerloot_208853
+powerloot_208854
+powerloot_208855
+powerloot_208856
