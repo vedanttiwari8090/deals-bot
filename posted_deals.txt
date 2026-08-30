@@ -2989,3 +2989,7 @@ powerloot_208863
 powerloot_208864
 PROD_MOBHKHPYGKYZ3YUN
 powerloot_208865
+myntra_Ajio_Sale_Deals_offers_li_9235
+powerloot_208866
+powerloot_208867
+powerloot_208868
