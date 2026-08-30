@@ -3369,3 +3369,11 @@ powerloot_209075
 powerloot_209076
 powerloot_209077
 powerloot_209078
+powerloot_209079
+powerloot_209080
+powerloot_209081
+powerloot_209082
+powerloot_209083
+powerloot_209084
+powerloot_209085
+powerloot_209086
