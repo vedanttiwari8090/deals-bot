@@ -3086,3 +3086,5 @@ PROD_myntra-fashion-store
 myntra_Ajio_Sale_Deals_offers_li_9242
 myntra_Ajio_Sale_Deals_offers_li_9243
 powerloot_208921
+techgurukaka_50897
+powerloot_208922
