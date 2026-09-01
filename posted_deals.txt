@@ -4052,3 +4052,10 @@ powerloot_209478
 powerloot_209479
 powerloot_209480
 powerloot_209481
+powerloot_209482
+powerloot_209483
+powerloot_209484
+powerloot_209485
+powerloot_209486
+powerloot_209487
+powerloot_209488
