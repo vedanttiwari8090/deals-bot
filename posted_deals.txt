@@ -4895,3 +4895,7 @@ powerloot_210017
 powerloot_210018
 PROD_CBTFQGCHZDRKBDVZ
 powerloot_210019
+myntra_Ajio_Sale_Deals_offers_li_9457
+powerloot_210020
+powerloot_210021
+powerloot_210022
