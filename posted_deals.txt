@@ -5223,3 +5223,6 @@ PROD_SSMGZZG9E6EZMCGV
 lootjunctionn_56527
 PROD_WATHGMZQZVWBCDFJ
 powerloot_210219
+myntra_Ajio_Sale_Deals_offers_li_9494
+powerloot_210220
+powerloot_210221
