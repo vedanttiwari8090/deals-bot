@@ -5521,3 +5521,12 @@ powerloot_210428
 PROD_BKPGPMC5PRBW9M9D
 powerloot_210429
 powerloot_210430
+techgurukaka_50941
+techgurukaka_50942
+powerloot_210431
+powerloot_210432
+powerloot_210433
+powerloot_210434
+powerloot_210435
+powerloot_210436
+powerloot_210437
