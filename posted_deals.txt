@@ -6079,3 +6079,10 @@ powerloot_210810
 powerloot_210811
 powerloot_210812
 powerloot_210813
+lootjunctionn_56607
+PROD_XHOH4GTAEDH6RZGA
+lootjunctionn_56608
+PROD_EOEGDSQACZ6XTNTV
+lootjunctionn_56609
+PROD_XPSH9BBHX4JZHQRC
+powerloot_210814
