@@ -6751,3 +6751,5 @@ PROD_pick-your-late-night-offer
 powerloot_211248
 powerloot_211249
 powerloot_211250
+myntra_Ajio_Sale_Deals_offers_li_9616
+powerloot_211251
