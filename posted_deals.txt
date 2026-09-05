@@ -6558,3 +6558,12 @@ powerloot_211118
 powerloot_211119
 powerloot_211120
 PROD_ACCH9HSSWJQXWGZF
+lootjunctionn_56648
+lootjunctionn_56649
+PROD_itmfa9278edbaf88
+lootjunctionn_56650
+lootjunctionn_56651
+PROD_itmb2f88056b7890
+powerloot_211121
+powerloot_211122
+powerloot_211123
