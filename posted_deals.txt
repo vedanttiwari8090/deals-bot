@@ -7364,3 +7364,6 @@ PROD_SHIHC8JPNP3JQSGC
 lootjunctionn_56702
 PROD_u26kafr
 powerloot_211732
+myntra_Ajio_Sale_Deals_offers_li_9703
+powerloot_211733
+powerloot_211734
