@@ -7576,3 +7576,6 @@ lootjunctionn_56726
 lootjunctionn_56727
 lootjunctionn_56728
 powerloot_211868
+powerloot_211869
+powerloot_211870
+powerloot_211871
