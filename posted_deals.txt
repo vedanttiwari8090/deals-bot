@@ -8475,3 +8475,8 @@ powerloot_212480
 powerloot_212481
 powerloot_212482
 powerloot_212483
+lootjunctionn_56819
+lootjunctionn_56820
+lootjunctionn_56821
+lootjunctionn_56822
+powerloot_212484
