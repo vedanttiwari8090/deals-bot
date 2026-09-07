@@ -8384,3 +8384,14 @@ powerloot_212420
 powerloot_212421
 powerloot_212422
 powerloot_212423
+lootjunctionn_56810
+PROD_VRXHK9FDUZ9R7QHV
+lootjunctionn_56811
+PROD_XKTGZZYFZG3JD9UZ
+lootjunctionn_56812
+PROD_UQSH28ZFMDWQP8UY
+lootjunctionn_56813
+powerloot_212424
+powerloot_212425
+powerloot_212426
+powerloot_212427
