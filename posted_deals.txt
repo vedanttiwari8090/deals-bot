@@ -8495,3 +8495,5 @@ PROD_8gbMChjY
 myntra_Ajio_Sale_Deals_offers_li_9830
 powerloot_212492
 powerloot_212493
+myntra_Ajio_Sale_Deals_offers_li_9831
+powerloot_212494
