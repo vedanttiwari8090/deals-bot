@@ -8578,3 +8578,17 @@ powerloot_212542
 powerloot_212543
 powerloot_212544
 PROD_ETYFPU6GVFDTR8HS
+lootjunctionn_56831
+PROD_IIRGXQJ5YBWESUC6
+lootjunctionn_56832
+PROD_XLPH3ZYWGNVZ9HVJ
+lootjunctionn_56833
+PROD_IOMH6A926XDFZCVG
+powerloot_212545
+powerloot_212546
+powerloot_212547
+powerloot_212548
+powerloot_212549
+PROD_BCBGZQ8FTE6QBTZZ
+powerloot_212550
+powerloot_212551
