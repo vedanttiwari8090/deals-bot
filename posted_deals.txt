@@ -8648,3 +8648,5 @@ lootjunctionn_56840
 PROD_XOSHFE8HWKGFT4VF
 lootjunctionn_56841
 PROD_XSRH9YWBRHPA4XAV
+powerloot_212587
+powerloot_212588
