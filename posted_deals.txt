@@ -8560,3 +8560,5 @@ techgurukaka_51003
 powerloot_212528
 powerloot_212529
 powerloot_212530
+powerloot_212531
+powerloot_212532
