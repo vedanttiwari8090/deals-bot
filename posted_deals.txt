@@ -8620,3 +8620,13 @@ lootjunctionn_56836
 PROD_XWWGKZJ5BF9QYBDX
 lootjunctionn_56837
 PROD_XCOGRYW4SNGDADHF
+powerloot_212569
+powerloot_212570
+powerloot_212571
+powerloot_212572
+powerloot_212573
+PROD_MSCHJ7VAFZ7M3U9Y
+powerloot_212574
+powerloot_212575
+powerloot_212576
+powerloot_212577
