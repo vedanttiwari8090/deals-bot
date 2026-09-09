@@ -9638,3 +9638,13 @@ powerloot_213308
 powerloot_213309
 PROD_IHDHA9KWFERDGZ9Y
 powerloot_213310
+myntra_Ajio_Sale_Deals_offers_li_9932
+powerloot_213311
+powerloot_213312
+TITLE_mobilescreenguardbackcoverstart1
+powerloot_213313
+powerloot_213314
+powerloot_213315
+TITLE_lootmobilescreenguardbackcoverst
+powerloot_213316
+powerloot_213317
