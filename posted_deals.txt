@@ -9482,3 +9482,5 @@ techgurukaka_51010
 powerloot_213202
 powerloot_213203
 powerloot_213204
+powerloot_213205
+powerloot_213206
