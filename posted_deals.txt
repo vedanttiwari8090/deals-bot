@@ -9580,3 +9580,5 @@ powerloot_213267
 powerloot_213268
 TITLE_grabscreenguardswithapplicatorkit
 powerloot_213269
+powerloot_213270
+powerloot_213271
