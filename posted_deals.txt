@@ -9320,3 +9320,9 @@ lootjunctionn_56891
 PROD_XWWGHG8QAYHRRAGH
 powerloot_213091
 powerloot_213092
+myntra_Ajio_Sale_Deals_offers_li_9901
+myntra_Ajio_Sale_Deals_offers_li_9902
+powerloot_213093
+powerloot_213094
+powerloot_213095
+powerloot_213096
