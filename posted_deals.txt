@@ -9601,3 +9601,5 @@ powerloot_213284
 powerloot_213285
 powerloot_213286
 powerloot_213287
+techgurukaka_51013
+techgurukaka_51014
