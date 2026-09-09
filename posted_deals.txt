@@ -9545,3 +9545,10 @@ powerloot_213243
 TITLE_lootscreenguardswithapplicatorkits
 powerloot_213244
 powerloot_213245
+powerloot_213246
+powerloot_213247
+powerloot_213248
+powerloot_213249
+powerloot_213250
+powerloot_213251
+powerloot_213252
