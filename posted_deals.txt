@@ -9891,3 +9891,12 @@ powerloot_213483
 powerloot_213484
 powerloot_213485
 powerloot_213486
+lootjunctionn_56936
+PROD_QUNHHHBESMFPD9DY
+lootjunctionn_56937
+PROD_itm904eabdd8b5c3
+lootjunctionn_56938
+PROD_itm067a09b21c5fb
+lootjunctionn_56939
+PROD_itm3793b860c7a2a
+powerloot_213487
