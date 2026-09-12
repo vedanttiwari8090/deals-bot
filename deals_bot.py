@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -10,7 +11,7 @@ from datetime import datetime, timezone, timedelta
 # ==============================================================================
 #                               CONFIGURATIONS
 # ==============================================================================
-BOT_TOKEN = "8671389280:AAF4_uvJN6R7nKIC_lJFBMg_xFBa3b8Z8Uo"            # From @BotFather
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 DESTINATION_CHANNEL = "@GetLoot_Deals"       # Your channel username with @
 CHANNEL_USERNAME = "GetLoot_Deals"           # Your channel username without @
 
