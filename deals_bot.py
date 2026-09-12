@@ -23,7 +23,7 @@ SOURCE_CHANNELS = [
     "powerloot"
 ]
 
-INR_ID = "ayu679055639"
+INR_ID = os.environ.get("INR_ID")
 INR_KEY = "none"
 HISTORY_FILE = "posted_deals.txt"
 
