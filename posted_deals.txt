@@ -10602,3 +10602,8 @@ powerloot_215015
 TITLE_flipkarthighlandermenscargosupto
 powerloot_215016
 powerloot_215017
+powerloot_215018
+powerloot_215019
+powerloot_215020
+powerloot_215021
+powerloot_215022
