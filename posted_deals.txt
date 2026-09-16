@@ -12193,3 +12193,9 @@ powerloot_216099
 powerloot_216100
 powerloot_216101
 powerloot_216102
+powerloot_216103
+powerloot_216104
+powerloot_216105
+powerloot_216106
+powerloot_216107
+powerloot_216108
