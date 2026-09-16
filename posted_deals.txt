@@ -12779,3 +12779,9 @@ PROD_itmbc2be41f3a99a
 myntra_Ajio_Sale_Deals_offers_li_10386
 powerloot_216531
 powerloot_216532
+myntra_Ajio_Sale_Deals_offers_li_10387
+powerloot_216533
+powerloot_216534
+powerloot_216535
+powerloot_216536
+powerloot_216537
