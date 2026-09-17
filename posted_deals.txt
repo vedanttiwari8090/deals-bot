@@ -13189,3 +13189,12 @@ powerloot_216804
 powerloot_216805
 powerloot_216806
 powerloot_216807
+powerloot_216808
+powerloot_216809
+powerloot_216810
+powerloot_216811
+powerloot_216812
+powerloot_216813
+powerloot_216814
+TITLE_newlaunchmimagnetic10000mah45wpo
+powerloot_216815
