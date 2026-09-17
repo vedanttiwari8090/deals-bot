@@ -13495,3 +13495,5 @@ powerloot_217020
 PROD_TVSHBCDQJGP8WKYT
 powerloot_217021
 powerloot_217022
+myntra_Ajio_Sale_Deals_offers_li_10478
+myntra_Ajio_Sale_Deals_offers_li_10479
