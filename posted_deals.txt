@@ -13477,3 +13477,5 @@ powerloot_217003
 powerloot_217004
 powerloot_217005
 powerloot_217006
+powerloot_217007
+powerloot_217008
