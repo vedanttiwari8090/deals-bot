@@ -13929,3 +13929,9 @@ lootjunctionn_57439
 PROD_gsmsneakpeak-26-store
 lootjunctionn_57440
 powerloot_217310
+myntra_Ajio_Sale_Deals_offers_li_10535
+myntra_Ajio_Sale_Deals_offers_li_10536
+powerloot_217311
+powerloot_217312
+powerloot_217313
+powerloot_217314
