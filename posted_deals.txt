@@ -13908,3 +13908,12 @@ powerloot_217294
 powerloot_217295
 powerloot_217296
 powerloot_217297
+powerloot_217298
+powerloot_217299
+powerloot_217300
+powerloot_217301
+powerloot_217302
+TITLE_lootmobiletabletbackcoversstart
+powerloot_217303
+powerloot_217304
+powerloot_217305
