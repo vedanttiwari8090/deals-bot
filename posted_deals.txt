@@ -14605,3 +14605,10 @@ myntra_Ajio_Sale_Deals_offers_li_10646
 powerloot_217751
 powerloot_217752
 powerloot_217753
+myntra_Ajio_Sale_Deals_offers_li_10647
+myntra_Ajio_Sale_Deals_offers_li_10648
+PROD_handbags
+powerloot_217754
+powerloot_217755
+powerloot_217756
+powerloot_217757
