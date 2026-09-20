@@ -15083,3 +15083,9 @@ powerloot_218071
 powerloot_218072
 powerloot_218073
 powerloot_218074
+techgurukaka_51145
+powerloot_218075
+powerloot_218076
+powerloot_218077
+powerloot_218078
+powerloot_218079
