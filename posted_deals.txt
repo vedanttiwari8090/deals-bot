@@ -14979,3 +14979,8 @@ powerloot_218007
 powerloot_218008
 powerloot_218009
 powerloot_218010
+myntra_Ajio_Sale_Deals_offers_li_10678
+myntra_Ajio_Sale_Deals_offers_li_10679
+powerloot_218011
+powerloot_218012
+powerloot_218013
