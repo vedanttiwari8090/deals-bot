@@ -15220,3 +15220,4 @@ powerloot_218184
 myntra_Ajio_Sale_Deals_offers_li_10697
 myntra_Ajio_Sale_Deals_offers_li_10698
 myntra_Ajio_Sale_Deals_offers_li_10699
+myntra_Ajio_Sale_Deals_offers_li_10700
