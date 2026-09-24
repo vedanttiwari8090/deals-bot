@@ -17974,3 +17974,11 @@ powerloot_220291
 PROD_BOTHBFDVHGNXT2TW
 powerloot_220292
 powerloot_220293
+powerloot_220294
+TITLE_lootupto75offonbrandedbeautypr
+powerloot_220295
+TITLE_upto75offbrandedbeautyproducts
+powerloot_220296
+powerloot_220297
+powerloot_220298
+powerloot_220299
