@@ -20591,3 +20591,12 @@ PROD_mobiles-streak-spell-store
 powerloot_222575
 myntra_Ajio_Sale_Deals_offers_li_11205
 powerloot_222576
+myntra_Ajio_Sale_Deals_offers_li_11206
+powerloot_222577
+powerloot_222578
+PROD_SHOGRSZVAR9QGQYZ
+powerloot_222579
+powerloot_222580
+powerloot_222581
+powerloot_222582
+powerloot_222583
