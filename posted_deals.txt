@@ -21427,3 +21427,13 @@ powerloot_223200
 powerloot_223201
 powerloot_223202
 powerloot_223203
+lootjunctionn_58111
+lootjunctionn_58112
+lootjunctionn_58113
+lootjunctionn_58114
+lootjunctionn_58115
+lootjunctionn_58116
+powerloot_223204
+powerloot_223205
+powerloot_223206
+powerloot_223207
