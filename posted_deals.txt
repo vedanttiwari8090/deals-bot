@@ -23272,3 +23272,17 @@ PROD_SHOHHAEGYGHB5JZ3
 powerloot_224519
 powerloot_224520
 powerloot_224521
+powerloot_224522
+powerloot_224523
+powerloot_224524
+powerloot_224525
+powerloot_224526
+powerloot_224527
+powerloot_224528
+TITLE_flipkartlootbrandedfootwearasics
+powerloot_224529
+powerloot_224530
+powerloot_224531
+PROD_STCHKGCWYYNWPGTE
+powerloot_224532
+powerloot_224533
