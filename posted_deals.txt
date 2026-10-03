@@ -24234,3 +24234,5 @@ powerloot_225025
 PROD_ELWHP2UKPPMHQKDV
 powerloot_225026
 powerloot_225027
+myntra_Ajio_Sale_Deals_offers_li_11503
+powerloot_225028
