@@ -24361,3 +24361,5 @@ lootjunctionn_58463
 PROD_XPTH2P2KARGX9TXP
 myntra_Ajio_Sale_Deals_offers_li_11524
 powerloot_225083
+myntra_Ajio_Sale_Deals_offers_li_11525
+powerloot_225084
