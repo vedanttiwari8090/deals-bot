@@ -25035,3 +25035,9 @@ TITLE_bbdcurtainraiserlootbackpacksupto
 powerloot_225517
 powerloot_225518
 powerloot_225519
+powerloot_225520
+powerloot_225521
+powerloot_225522
+TITLE_bbdcurtainraiserloothandbagsupto8
+powerloot_225523
+powerloot_225524
