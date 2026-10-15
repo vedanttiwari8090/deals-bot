@@ -40640,3 +40640,8 @@ powerloot_242082
 powerloot_242083
 powerloot_242084
 powerloot_242085
+powerloot_242086
+powerloot_242087
+powerloot_242088
+powerloot_242089
+powerloot_242090
