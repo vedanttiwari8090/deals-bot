@@ -40634,3 +40634,9 @@ powerloot_242076
 powerloot_242077
 powerloot_242078
 powerloot_242079
+powerloot_242080
+powerloot_242081
+powerloot_242082
+powerloot_242083
+powerloot_242084
+powerloot_242085
