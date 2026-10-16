@@ -41858,3 +41858,15 @@ powerloot_243056
 powerloot_243057
 powerloot_243058
 powerloot_243059
+powerloot_243060
+powerloot_243061
+powerloot_243062
+powerloot_243063
+powerloot_243064
+powerloot_243065
+powerloot_243066
+powerloot_243067
+powerloot_243068
+powerloot_243069
+powerloot_243070
+powerloot_243071
