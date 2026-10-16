@@ -40712,3 +40712,12 @@ powerloot_242137
 powerloot_242138
 powerloot_242139
 powerloot_242140
+powerloot_242141
+powerloot_242142
+powerloot_242143
+powerloot_242144
+powerloot_242145
+powerloot_242146
+powerloot_242147
+powerloot_242148
+powerloot_242149
