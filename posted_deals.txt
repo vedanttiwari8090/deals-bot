@@ -40681,3 +40681,5 @@ lootjunctionn_59623
 lootjunctionn_59624
 powerloot_242114
 powerloot_242115
+techgurukaka_52241
+powerloot_242116
