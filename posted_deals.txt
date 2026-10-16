@@ -40661,3 +40661,6 @@ powerloot_242103
 powerloot_242104
 powerloot_242105
 powerloot_242106
+techgurukaka_52237
+TITLE_loot59buymaxhttpscuttliinx01r
+techgurukaka_52238
