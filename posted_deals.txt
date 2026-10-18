@@ -43502,3 +43502,5 @@ lootjunctionn_59757
 PROD_QLAHB988FGGPWRMM
 powerloot_244667
 powerloot_244668
+techgurukaka_52330
+powerloot_244669
