@@ -44946,3 +44946,10 @@ powerloot_246037
 powerloot_246038
 powerloot_246039
 powerloot_246040
+powerloot_246041
+powerloot_246042
+powerloot_246043
+powerloot_246044
+powerloot_246045
+powerloot_246046
+powerloot_246047
