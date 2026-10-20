@@ -46763,3 +46763,13 @@ powerloot_247483
 powerloot_247484
 powerloot_247485
 powerloot_247486
+powerloot_247487
+powerloot_247488
+powerloot_247489
+powerloot_247490
+powerloot_247491
+powerloot_247492
+powerloot_247493
+powerloot_247494
+powerloot_247495
+powerloot_247496
