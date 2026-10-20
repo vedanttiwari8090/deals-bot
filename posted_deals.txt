@@ -46258,3 +46258,16 @@ powerloot_247092
 powerloot_247093
 powerloot_247094
 PROD_SMTGPQPUVCAMMZNE
+powerloot_247095
+powerloot_247096
+TITLE_lootsamsunglaptopsstarting50490
+powerloot_247097
+powerloot_247098
+TITLE_lootamdryzen357laptopsstarti
+powerloot_247099
+powerloot_247100
+powerloot_247101
+TITLE_samsunglaptopsstarts50490https
+powerloot_247102
+TITLE_lootintelcore3i3laptopsstarts
+powerloot_247103
