@@ -46236,3 +46236,14 @@ powerloot_247077
 powerloot_247078
 PROD_BAAHN4VYFCZGSEP7
 powerloot_247079
+iamprasadtech_129401
+powerloot_247080
+TITLE_lootacerlunarlakelaptopsstarting
+powerloot_247081
+powerloot_247082
+powerloot_247083
+TITLE_grabacerlunarlakelaptopsstarts6
+powerloot_247084
+TITLE_lootintelcore3i3laptopsstarting
+powerloot_247085
+powerloot_247086
