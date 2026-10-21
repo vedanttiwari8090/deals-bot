@@ -47078,3 +47078,9 @@ powerloot_247728
 TITLE_lootasusexpertbooklaptopsstarting
 powerloot_247729
 powerloot_247730
+powerloot_247731
+TITLE_lootseries3pcsstarting61450
+powerloot_247732
+powerloot_247733
+powerloot_247734
+powerloot_247735
