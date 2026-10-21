@@ -47205,3 +47205,8 @@ powerloot_247815
 lootjunctionn_59969
 powerloot_247816
 powerloot_247817
+techgurukaka_52460
+powerloot_247818
+powerloot_247819
+powerloot_247820
+powerloot_247821
