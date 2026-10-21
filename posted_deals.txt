@@ -47366,3 +47366,5 @@ powerloot_247901
 powerloot_247902
 powerloot_247903
 powerloot_247904
+powerloot_247905
+powerloot_247906
