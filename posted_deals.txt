@@ -46871,3 +46871,12 @@ powerloot_247575
 powerloot_247576
 powerloot_247577
 powerloot_247578
+powerloot_247579
+powerloot_247580
+powerloot_247581
+powerloot_247582
+powerloot_247583
+powerloot_247584
+powerloot_247585
+powerloot_247586
+powerloot_247587
