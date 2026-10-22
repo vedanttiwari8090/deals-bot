@@ -47598,3 +47598,9 @@ powerloot_248078
 powerloot_248079
 powerloot_248080
 powerloot_248081
+powerloot_248082
+powerloot_248083
+powerloot_248084
+powerloot_248085
+powerloot_248086
+powerloot_248087
