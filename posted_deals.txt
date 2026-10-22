@@ -47629,3 +47629,5 @@ powerloot_248101
 powerloot_248102
 powerloot_248105
 powerloot_248106
+powerloot_248107
+powerloot_248108
