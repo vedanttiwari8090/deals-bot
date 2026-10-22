@@ -47614,3 +47614,15 @@ powerloot_248093
 powerloot_248094
 powerloot_248095
 powerloot_248096
+lootjunctionn_60021
+PROD_EOEGT78MUVSNZ9CS
+lootjunctionn_60022
+PROD_EOEGRUEPHGMP6GVW
+lootjunctionn_60023
+lootjunctionn_60024
+PROD_RGZG8WZ7BBBMMZBH
+powerloot_248097
+powerloot_248098
+powerloot_248099
+powerloot_248100
+powerloot_248101
