@@ -47947,3 +47947,12 @@ powerloot_248293
 powerloot_248294
 powerloot_248295
 powerloot_248296
+lootjunctionn_60046
+lootjunctionn_60047
+lootjunctionn_60048
+lootjunctionn_60049
+lootjunctionn_60050
+powerloot_248297
+powerloot_248298
+powerloot_248299
+powerloot_248300
