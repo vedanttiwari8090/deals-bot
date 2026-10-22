@@ -47496,3 +47496,5 @@ powerloot_248004
 powerloot_248005
 powerloot_248006
 powerloot_248007
+lootjunctionn_60012
+techgurukaka_52475
