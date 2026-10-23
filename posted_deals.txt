@@ -48077,3 +48077,10 @@ powerloot_248418
 powerloot_248419
 powerloot_248420
 powerloot_248421
+lootjunctionn_60062
+lootjunctionn_60063
+lootjunctionn_60064
+lootjunctionn_60065
+powerloot_248422
+powerloot_248423
+powerloot_248424
