@@ -49004,3 +49004,8 @@ powerloot_249100
 powerloot_249101
 powerloot_249102
 powerloot_249103
+powerloot_249104
+powerloot_249105
+powerloot_249106
+powerloot_249107
+powerloot_249108
