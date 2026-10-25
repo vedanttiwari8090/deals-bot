@@ -49454,3 +49454,11 @@ powerloot_249473
 powerloot_249474
 powerloot_249475
 powerloot_249476
+powerloot_249477
+powerloot_249478
+powerloot_249479
+powerloot_249480
+powerloot_249481
+powerloot_249482
+powerloot_249483
+powerloot_249484
