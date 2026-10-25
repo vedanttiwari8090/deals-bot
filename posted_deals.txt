@@ -49333,3 +49333,11 @@ powerloot_249383
 powerloot_249384
 powerloot_249385
 powerloot_249386
+lootjunctionn_60178
+lootjunctionn_60179
+lootjunctionn_60180
+lootjunctionn_60181
+lootjunctionn_60182
+powerloot_249387
+powerloot_249388
+powerloot_249389
