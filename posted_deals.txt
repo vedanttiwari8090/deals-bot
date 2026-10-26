@@ -50276,3 +50276,10 @@ powerloot_250048
 powerloot_250049
 powerloot_250050
 TITLE_lootasusexpertbooklaptopsstarts7
+powerloot_250051
+powerloot_250052
+powerloot_250053
+powerloot_250054
+powerloot_250055
+powerloot_250056
+powerloot_250057
