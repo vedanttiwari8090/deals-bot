@@ -62151,3 +62151,6 @@ powerloot_258175
 lootjunctionn_61343
 lootjunctionn_61344
 powerloot_258176
+lootjunctionn_61345
+powerloot_258177
+powerloot_258178
