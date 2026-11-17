@@ -63476,3 +63476,11 @@ powerloot_259003
 powerloot_259004
 powerloot_259005
 powerloot_259006
+lootjunctionn_61485
+lootjunctionn_61486
+lootjunctionn_61487
+lootjunctionn_61488
+powerloot_259007
+powerloot_259008
+powerloot_259009
+powerloot_259010
