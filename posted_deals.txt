@@ -63740,3 +63740,13 @@ powerloot_259101
 powerloot_259102
 powerloot_259103
 powerloot_259104
+lootjunctionn_61520
+lootjunctionn_61521
+lootjunctionn_61522
+lootjunctionn_61523
+lootjunctionn_61524
+lootjunctionn_61525
+powerloot_259105
+powerloot_259106
+powerloot_259107
+powerloot_259108
