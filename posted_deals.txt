@@ -64240,3 +64240,12 @@ lootjunctionn_61610
 lootjunctionn_61611
 lootjunctionn_61612
 lootjunctionn_61613
+powerloot_259232
+powerloot_259233
+powerloot_259234
+powerloot_259235
+powerloot_259236
+powerloot_259237
+powerloot_259238
+powerloot_259239
+powerloot_259240
