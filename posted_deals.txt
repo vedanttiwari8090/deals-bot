@@ -65707,3 +65707,12 @@ powerloot_259667
 powerloot_259668
 powerloot_259669
 powerloot_259670
+lootjunctionn_61870
+lootjunctionn_61871
+lootjunctionn_61872
+lootjunctionn_61873
+lootjunctionn_61874
+powerloot_259671
+powerloot_259672
+powerloot_259673
+powerloot_259674
